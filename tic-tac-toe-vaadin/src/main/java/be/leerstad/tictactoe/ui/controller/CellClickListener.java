@@ -4,6 +4,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification;
 
+import be.leerstad.tictactoe.business.GameState;
 import be.leerstad.tictactoe.service.manager.GameManager;
 import be.leerstad.tictactoe.ui.CellUI;
 
@@ -24,11 +25,7 @@ public class CellClickListener implements ClickListener {
 	
 		if (event.getComponent().getClass().equals(CellUI.class)) {
 			CellUI cellUI = (CellUI)event.getComponent();
-			//cell.setSeed(gameManager.getCurrentPlayer());
-			//cell.updateImage();
-			
-			Notification.show(gameManager.playerMove(cellUI.getCellDTO()));
-					
+			Notification.show(gameManager.playerMove(cellUI.getCellDTO()));			
 		}
 
 	}

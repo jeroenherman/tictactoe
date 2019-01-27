@@ -1,12 +1,16 @@
 package be.leerstad.tictactoe.ui;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import com.vaadin.ui.GridLayout;
 
+import be.leerstad.tictactoe.business.GameState;
 import be.leerstad.tictactoe.business.Seed;
 import be.leerstad.tictactoe.service.dto.CellDTO;
 import be.leerstad.tictactoe.service.manager.GameManager;
 
-public class GameBoard extends GridLayout {
+public class GameBoard extends GridLayout implements Observer {
 
 	/**
 	 * Gameboard has 3 rows and 3 columns 
@@ -17,6 +21,7 @@ public class GameBoard extends GridLayout {
 	private GameManager gameManager;
 	public GameBoard(GameManager gameManager) {
 		this.gameManager = gameManager;
+		gameManager.addObserver(this);
 		init();	
 	}
 	
@@ -37,4 +42,10 @@ public class GameBoard extends GridLayout {
 	            }
 	        }
 	    }
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if(arg.equals(GameState.RESET))
+		init();
+	}
 }

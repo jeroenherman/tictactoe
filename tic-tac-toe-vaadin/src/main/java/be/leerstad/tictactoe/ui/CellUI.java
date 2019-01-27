@@ -58,6 +58,8 @@ public class CellUI extends Button implements Observer {
 				CellDTO update = (CellDTO) arg1;
 				if ((update.getRow()==this.cellDTO.getRow())&&(update.getCol()==this.cellDTO.getCol()))
 					setCellDTO(update);
+				if (update.getSeed().equals(EMPTY))
+					setCellDTO(update);
 		}	
 	}
 

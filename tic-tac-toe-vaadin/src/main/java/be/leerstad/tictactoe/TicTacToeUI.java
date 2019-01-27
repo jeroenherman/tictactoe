@@ -10,8 +10,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import be.leerstad.tictactoe.service.manager.GameManager;
-import be.leerstad.tictactoe.ui.CellUI;
 import be.leerstad.tictactoe.ui.GameBoard;
+import be.leerstad.tictactoe.ui.GameMenu;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -22,11 +22,14 @@ import be.leerstad.tictactoe.ui.GameBoard;
  */
 @Theme("TicTacToeTheme")
 public class TicTacToeUI extends UI {
+	private GameManager gameManager = new GameManager();
+	
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         final VerticalLayout layout = new VerticalLayout();
-        layout.addComponent(new GameBoard(new GameManager()));  
+        layout.addComponent(new GameMenu(gameManager));
+        layout.addComponent(new GameBoard(gameManager)); 
         setContent(layout);
     }
 
