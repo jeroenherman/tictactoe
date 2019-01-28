@@ -32,7 +32,7 @@ public class CellClickListener implements ClickListener {
 			if (gameManager.getGameMode().equals(GameMode.DUAL))
 				Notification.show(gameManager.dualPlayer(cellUI.getCellDTO()));
 		} else
-			Notification.show(gameManager.getCurrentState().toString() + "Please Reset...");
+			Notification.show(gameManager.getCurrentState().toString() + " Please Reset...");
 
 	}
 
