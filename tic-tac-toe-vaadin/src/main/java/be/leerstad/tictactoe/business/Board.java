@@ -61,7 +61,7 @@ public class Board {  // save as Board.java
                    && cells[2][0].content == theSeed);
    }
  
-   /** Paint itself */
+   /** print itself */
    public void paint() {
       for (int row = 0; row < ROWS; ++row) {
          for (int col = 0; col < COLS; ++col) {

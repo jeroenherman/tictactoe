@@ -22,6 +22,34 @@ public class GameManager extends Observable {
 		initGame();
 	}
 
+
+	public String singlePlayer(CellDTO cellDTO) {
+		String message = "";
+		if (getCurrentPlayer().equals(Seed.CROSS))
+			message = dualPlayer(cellDTO);
+		if (getCurrentPlayer().equals(Seed.NOUGHT)) {
+			do {
+				int row = ThreadLocalRandom.current().nextInt(1, 4);
+				int col = ThreadLocalRandom.current().nextInt(1, 4);
+				cellDTO = new CellDTO(row, col, Seed.EMPTY);
+				message = dualPlayer(cellDTO);
+			} while (currentPlayer.equals(Seed.NOUGHT) && currentState.equals(GameState.PLAYING));
+		}
+		return message;
+	}
+
+	public Seed getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	public GameState getCurrentState() {
+		return currentState;
+	}
+
+	public GameMode getGameMode() {
+		return currentGameMode;
+	}
+
 	/** Initialize the game-board contents and the current states */
 	public void initGame() {
 		board.init(); // clear the board contents
@@ -32,11 +60,19 @@ public class GameManager extends Observable {
 
 	}
 
+	public void setGameMode(GameMode gameMode) {
+		if (currentState.equals(GameState.PLAYING))
+			initGame();
+		this.currentGameMode = gameMode;
+		setChanged();
+		notifyObservers();
+	}
+
 	/**
 	 * The player with "theSeed" makes one move, with input validation. Update
 	 * Cell's content, Board's currentRow and currentCol.
 	 */
-	public String playerMove(CellDTO cellDTO) {
+	public String dualPlayer(CellDTO cellDTO) {
 		int row, col;
 		String message = "";
 		row = cellDTO.getRow() - 1; // arrays are 0 based
@@ -49,9 +85,9 @@ public class GameManager extends Observable {
 			setChanged();
 			notifyObservers(cellDTO); // change cell image via cellDTO
 			updateGame(currentPlayer);
-			message = checkGameState();
+			message = currentState.toString();
 			if (currentState.equals(GameState.PLAYING))
-				message = "Player: " + switchPlayer().toString();
+				message =  switchPlayer().toString();
 
 		} else {
 			message = "This move at (" + (row + 1) + "," + (col + 1) + ") is not valid. Try again...";
@@ -61,8 +97,8 @@ public class GameManager extends Observable {
 
 	private Seed switchPlayer() {
 		currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-		if (currentGameMode.equals(GameMode.SINGLE) && currentPlayer.equals(Seed.NOUGHT))
-			singlePlayer();
+		setChanged();
+		notifyObservers();
 		return currentPlayer;
 	}
 
@@ -70,47 +106,13 @@ public class GameManager extends Observable {
 	public void updateGame(Seed theSeed) {
 		if (board.hasWon(theSeed)) { // check for win
 			currentState = (theSeed == Seed.CROSS) ? GameState.CROSS_WON : GameState.NOUGHT_WON;
+			setChanged();
 		} else if (board.isDraw()) { // check for draw
 			currentState = GameState.DRAW;
+			setChanged();
 		}
 		// Otherwise, no change to current state (still GameState.PLAYING).
-	}
-
-	public String checkGameState() {
-		// return message if game-over
-		String message = "";
-		if (currentState == GameState.CROSS_WON) {
-			message = "'X' won!";
-		} else if (currentState == GameState.NOUGHT_WON) {
-			message = "'O' won!";
-		} else if (currentState == GameState.DRAW) {
-			message = "It's Draw!";
-		}
-		return message;
-	}
-
-	public Seed getCurrentPlayer() {
-		return currentPlayer;
-	}
-
-	private void singlePlayer() {
-		do {
-			int row = ThreadLocalRandom.current().nextInt(1, 4);
-			int col = ThreadLocalRandom.current().nextInt(1, 4);
-			CellDTO cellDTO = new CellDTO(row, col, Seed.EMPTY);
-			playerMove(cellDTO);
-		} while (currentPlayer.equals(Seed.NOUGHT));
-
-	}
-
-	public void setGameMode(GameMode gameMode) {
-		if (currentState.equals(GameState.PLAYING))
-			initGame();
-		this.currentGameMode = gameMode;
-	}
-
-	public GameMode getGameMode() {
-		return currentGameMode;
+		notifyObservers();
 	}
 
 }

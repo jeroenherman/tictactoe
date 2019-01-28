@@ -6,12 +6,14 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import be.leerstad.tictactoe.service.manager.GameManager;
 import be.leerstad.tictactoe.ui.GameBoard;
 import be.leerstad.tictactoe.ui.GameMenu;
+import be.leerstad.tictactoe.ui.InfoPanel;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -28,8 +30,11 @@ public class TicTacToeUI extends UI {
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         final VerticalLayout layout = new VerticalLayout();
+        final HorizontalLayout hlayout = new HorizontalLayout();
         layout.addComponent(new GameMenu(gameManager));
-        layout.addComponent(new GameBoard(gameManager)); 
+        hlayout.addComponent(new GameBoard(gameManager)); 
+        hlayout.addComponent(new InfoPanel(gameManager));
+        layout.addComponent(hlayout);
         setContent(layout);
     }
 

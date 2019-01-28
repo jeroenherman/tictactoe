@@ -45,7 +45,7 @@ public class GameBoard extends GridLayout implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if(arg.equals(GameState.RESET))
+		if((arg!=null)&&arg.equals(GameState.RESET))
 		init();
 	}
 }
