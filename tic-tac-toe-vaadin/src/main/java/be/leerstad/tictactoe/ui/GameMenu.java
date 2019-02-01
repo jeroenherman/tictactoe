@@ -12,7 +12,7 @@ public class GameMenu extends MenuBar {
 	 */
 	private static final long serialVersionUID = -6583543972904254710L;
 	private GameManager gameManager;
-	private final Command resetGame = s -> gameManager.initGame();
+	private final Command newGame = s -> gameManager.newGame();
 	private final Command singlePlayer = s -> gameManager.setGameMode(GameMode.SINGLE);
 	private final Command dualPlayer = s -> gameManager.setGameMode(GameMode.DUAL);
 	public GameMenu(GameManager gameManager) {
@@ -25,7 +25,7 @@ public class GameMenu extends MenuBar {
 		MenuItem mode = addItem("Mode");
 		mode.addItem("Single Player", singlePlayer);
 		mode.addItem("Dual Player", dualPlayer);
-		MenuItem reset = addItem("Reset",resetGame);
+		MenuItem reset = addItem("New Game",newGame);
 	}
 
 }

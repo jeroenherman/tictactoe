@@ -8,37 +8,38 @@ import be.leerstad.tictactoe.business.GameState;
 import be.leerstad.tictactoe.business.Seed;
 import be.leerstad.tictactoe.service.dto.CellDTO;
 import be.leerstad.tictactoe.service.dto.GameMode;
+import be.leerstad.tictactoe.service.dto.PlayerDTO;
 
 public class GameManager extends Observable {
 	private Board board; // the game board
 	private GameMode currentGameMode;
 	private GameState currentState; // the current state of the game (of enum GameState)
-	private Seed currentPlayer; // the current player (of enum Seed)
-
+	private PlayerDTO currentPlayer; // the current player (with enum Seed)
+	private PlayerDTO player1;
+	private PlayerDTO player2;
+	
+	
 	public GameManager() {
-		board = new Board(); // allocate game-board
-		// Initialize the game-board and current status
-		currentGameMode = GameMode.DUAL;
-		initGame();
+		board = new Board(); // allocate game-board	
 	}
 
 
 	public String singlePlayer(CellDTO cellDTO) {
 		String message = "";
-		if (getCurrentPlayer().equals(Seed.CROSS))
+		if (getCurrentPlayer().getSeed().equals(Seed.CROSS))
 			message = dualPlayer(cellDTO);
-		if (getCurrentPlayer().equals(Seed.NOUGHT)) {
+		if (getCurrentPlayer().getSeed().equals(Seed.NOUGHT)) {
 			do {
 				int row = ThreadLocalRandom.current().nextInt(1, 4);
 				int col = ThreadLocalRandom.current().nextInt(1, 4);
 				cellDTO = new CellDTO(row, col, Seed.EMPTY);
 				message = dualPlayer(cellDTO);
-			} while (currentPlayer.equals(Seed.NOUGHT) && currentState.equals(GameState.PLAYING));
+			} while (currentPlayer.getSeed().equals(Seed.NOUGHT) && currentState.equals(GameState.PLAYING));
 		}
 		return message;
 	}
 
-	public Seed getCurrentPlayer() {
+	public PlayerDTO getCurrentPlayer() {
 		return currentPlayer;
 	}
 
@@ -51,19 +52,33 @@ public class GameManager extends Observable {
 	}
 
 	/** Initialize the game-board contents and the current states */
-	public void initGame() {
+	public void initGame(PlayerDTO p1, PlayerDTO p2, GameMode gs) {
 		board.init(); // clear the board contents
 		setChanged();
+		setPlayers(p1,p2);
+		resetScore();
+		currentGameMode = gs;
 		notifyObservers(GameState.RESET);
-		currentPlayer = Seed.CROSS; // CROSS plays first
+		currentPlayer = p1; // CROSS plays first
 		currentState = GameState.PLAYING; // ready to play
 
 	}
 
+	private void setPlayers(PlayerDTO p1, PlayerDTO p2) {
+		this.player1 = p1;
+		player1.setSeed(Seed.CROSS);
+		this.player2 = p2;
+		player2.setSeed(Seed.NOUGHT);	
+	}
+
+	private void resetScore() {
+		player1.setScore( 0);
+		player2.setScore( 0);	
+	}
+
 	public void setGameMode(GameMode gameMode) {
 		if (currentState.equals(GameState.PLAYING))
-			initGame();
-		this.currentGameMode = gameMode;
+			initGame(player1,player2, gameMode);
 		setChanged();
 		notifyObservers();
 	}
@@ -78,13 +93,13 @@ public class GameManager extends Observable {
 		row = cellDTO.getRow() - 1; // arrays are 0 based
 		col = cellDTO.getCol() - 1; // arrays are 0 based
 		if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS && board.getSeed(row, col) == Seed.EMPTY) {
-			board.setSeed(row, col, currentPlayer);
+			board.setSeed(row, col, currentPlayer.getSeed());
 			board.setCurrentRow(row);
 			board.setCurrentCol(col);
-			cellDTO.setSeed(currentPlayer);
+			cellDTO.setSeed(currentPlayer.getSeed());
 			setChanged();
 			notifyObservers(cellDTO); // change cell image via cellDTO
-			updateGame(currentPlayer);
+			updateGame(currentPlayer.getSeed());
 			message = currentState.toString();
 			if (currentState.equals(GameState.PLAYING))
 				message =  switchPlayer().toString();
@@ -96,16 +111,20 @@ public class GameManager extends Observable {
 	}
 
 	private Seed switchPlayer() {
-		currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+		 if (currentPlayer.equals(player1))
+				 currentPlayer = player2;
+		 else
+			 currentPlayer = player1;
 		setChanged();
 		notifyObservers();
-		return currentPlayer;
+		return currentPlayer.getSeed();
 	}
 
 	/** Update the currentState after the player with "theSeed" has moved */
 	public void updateGame(Seed theSeed) {
 		if (board.hasWon(theSeed)) { // check for win
 			currentState = (theSeed == Seed.CROSS) ? GameState.CROSS_WON : GameState.NOUGHT_WON;
+			keepScore(theSeed);
 			setChanged();
 		} else if (board.isDraw()) { // check for draw
 			currentState = GameState.DRAW;
@@ -114,5 +133,35 @@ public class GameManager extends Observable {
 		// Otherwise, no change to current state (still GameState.PLAYING).
 		notifyObservers();
 	}
+
+
+	private void keepScore(Seed theSeed) {
+		if (theSeed.equals(player1.getSeed()))
+			player1.setScore(player1.getScore()+1);
+		else
+			player2.setScore(player2.getScore()+1);
+	}
+
+
+	public void newGame() {
+		board.init(); // clear the board contents
+		setChanged();
+		currentGameMode = currentGameMode;
+		notifyObservers(GameState.RESET);
+		currentPlayer = player1; // CROSS plays first
+		currentState = GameState.PLAYING; // ready to play
+	}
+
+
+	public PlayerDTO getPlayer1() {
+		return player1;
+	}
+
+
+	public PlayerDTO getPlayer2() {
+		return player2;
+	}
+	
+	
 
 }
